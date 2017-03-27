@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+</head>
+
+<body>
+<div class="container">
+    <h1>日志查询</h1>
+    <div class="row center-block">
+        <form class="form-inline" id="check-log-form" role="form">
+            <div class="input-group">
+                <span class="input-group-addon">服务器IP地址</span>
+                <input type="text" class="form-control" id="ipAddr" name="ip-addr"
+                       placeholder="192.168.2.22">
+            </div>
+
+            <div class="input-group">
+                <span class="input-group-addon">日志路径</span>
+                <input type="text" class="form-control" id="logPath" name="log-path" placeholder="/data/msg.log">
+            </div>
+            <button class="btn btn-default" type="button" id="check-button">开始查询</button>
+            <button class="btn btn-default" type="button" id="stop-button">终止查询</button>
+        </form>
+    </div>
+    <hr>
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">查询日志内容</h3>
+            </div>
+            <div class="panel-body" id="tail-log">
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    $(document).ready(function() {
+
+        ws = new WebSocket('ws://192.168.104.35:3000/taillog');
+                    ws.onopen = function(evt) {
+                    ws.send("@线上服务连接成功!");
+                    };
+
+                    ws.onmessage = function(evt) {
+//                        $('#tail-log').('<p>' + evt.data + '</p>');
+                        $('#tail-log').prepend('<p>' + evt.data + '</p>');
+                    };
+                    ws.onclose =  function(evt) {
+                        alert (">>> 和服务器已经断开连接! <<<");
+                    };
+
+        $('#check-button').click(function () {
+                var message = $('#ipAddr').val() + '#' + $('#logPath').val();
+                ws.send(message);
+            })
+
+        $('#stop-button').click(function () {
+                ws.close();
+                location.reload();
+            })
+
+        });
+
+
+
+</script>
+
+
+</html>
